@@ -1,0 +1,17 @@
+{
+  "name": "AI Nexus Pro",
+  "short_name": "NexusAI",
+  "description": "تطبيق ذكاء اصطناعي محلي متطور",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2103/2103830.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
