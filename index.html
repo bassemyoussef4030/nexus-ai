@@ -3,91 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Nexus Pro — Ultimate Edition</title>
+    <title>AI Nexus — Zero Error Edition</title>
     
-    <meta name="theme-color" content="#8b5cf6">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFpIE5leHVzIFBybyIsCiAgInNob3J0X25hbWUiOiAiTmV4dXNBSSIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiIzhiNWNmNiIKfQ==">
-
     <style>
-        :root { --p: #8b5cf6; --bg: #050508; --card: #0f172a; --border: #1e293b; --accent: #10b981; }
+        :root { --p: #8b5cf6; --bg: #050508; --card: #0f172a; --border: #1e293b; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); color: #fff; height: 100dvh; display: flex; justify-content: center; overflow: hidden; }
+        .app-container { width: min(500px, 100vw); height: 100dvh; display: flex; flex-direction: column; background: #000; position: relative; border-inline: 1px solid var(--border); }
         
-        .app-container { width: min(500px, 100vw); height: 100dvh; display: flex; flex-direction: column; background: #000; border-inline: 1px solid var(--border); position: relative; }
-
-        /* لوحة البيانات */
-        .telemetry { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 10px; background: var(--card); border-bottom: 2px solid var(--p); z-index: 10; }
-        .stat-box { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 6px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-label { font-size: 8px; color: #94a3b8; }
-        .stat-val { font-size: 11px; font-weight: bold; color: var(--p); font-family: monospace; }
-
-        /* منطقة البحث والإعدادات */
-        .setup-area { padding: 15px; flex-shrink: 0; overflow-y: auto; }
-        .search-box { display: flex; gap: 8px; margin-bottom: 10px; }
-        input { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: #fff; font-size: 13px; outline: none; }
-        .btn { padding: 12px 20px; border-radius: 10px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .header { padding: 15px; background: var(--card); border-bottom: 2px solid var(--p); text-align: center; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; font-size: 10px; }
         
-        /* قائمة النماذج الكبيرة */
-        .model-list { max-height: 300px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; display: none; }
-        .model-item { padding: 12px; border-bottom: 1px solid #1e293b; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .model-item:hover { background: #1e293b; color: var(--p); }
-        .model-info { font-size: 11px; font-weight: 500; }
-        .model-meta { font-size: 9px; color: #64748b; }
+        .setup-area { padding: 20px; flex: 1; overflow-y: auto; }
+        input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: #0f172a; color: #fff; font-size: 13px; outline: none; margin-bottom: 10px; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--p); color: #fff; font-weight: bold; cursor: pointer; }
+        
+        .model-list { max-height: 250px; overflow-y: auto; background: #000; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 15px; display: none; }
+        .model-item { padding: 12px; border-bottom: 1px solid #111; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .model-item:hover { background: var(--border); color: var(--p); }
 
-        /* واجهة الدردشة */
-        .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 15px; }
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 14.5px; line-height: 1.6; animation: fadeIn 0.3s ease; }
+        .chat-view { flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; gap: 12px; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 14px; line-height: 1.6; }
         .user { align-self: flex-start; background: var(--border); border-bottom-left-radius: 2px; }
         .ai { align-self: flex-end; background: linear-gradient(135deg, #6d28d9, #4338ca); border-bottom-right-radius: 2px; }
 
-        /* شاشة التحميل */
         #loader { position: absolute; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
-        .prog-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; margin: 20px 0; overflow: hidden; }
-        #pBar { height: 100%; width: 0%; background: var(--p); box-shadow: 0 0 15px var(--p); transition: 0.3s; }
-
+        .p-bar-bg { width: 100%; height: 6px; background: #111; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        #pBar { height: 100%; width: 0%; background: var(--p); box-shadow: 0 0 15px var(--p); }
+        
         .footer { padding: 15px; background: #000; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="telemetry">
-        <div class="stat-box"><span class="stat-label">السرعة</span><span id="tps" class="stat-val">0.0 t/s</span></div>
-        <div class="stat-box"><span class="stat-label">الذاكرة</span><span id="ram" class="stat-val">-- MB</span></div>
-        <div class="stat-box"><span class="stat-label">المعالج</span><span id="gpu" class="stat-val">...</span></div>
+    <div class="header">
+        <h2 style="font-size: 18px;">Nexus <span style="color:var(--p)">AI Pro</span></h2>
+        <div class="stat-grid">
+            <div style="color:var(--p)">السرعة: <span id="tps">0.0</span> t/s</div>
+            <div style="color:#64748b">الذاكرة: <span id="ram">--</span></div>
+        </div>
     </div>
 
     <div id="pane-setup" class="setup-area">
-        <h3 style="margin-bottom: 15px; color: var(--p); font-size: 16px;">مستكشف النماذج العالمي (MLC)</h3>
-        <div class="search-box">
-            <input type="text" id="hfSearch" placeholder="بحث عميق (مثلاً: Qwen, Llama, Gemma)..." oninput="deepSearch()">
-            <button class="btn" onclick="deepSearch()">🔍</button>
-        </div>
-        
+        <input type="text" id="hfSearch" placeholder="ابحث عن نموذج (Qwen, Llama...)" oninput="searchModels()">
         <div id="results" class="model-list"></div>
-        
-        <div style="margin-top: 15px; padding: 10px; background: rgba(139, 92, 246, 0.05); border-radius: 10px; border: 1px dashed var(--p);">
-            <label style="font-size: 10px; color: #94a3b8; display: block; margin-bottom: 5px;">الرابط النشط حالياً:</label>
-            <input type="text" id="targetUrl" placeholder="سيظهر الرابط هنا عند الاختيار..." readonly style="font-size: 10px; background: #000;">
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="bootSystem()">🚀 بدء تحميل النظام العصبي</button>
-        </div>
-        
-        <button onclick="clearHistory()" style="width: 100%; background: none; border: none; color: #444; font-size: 10px; margin-top: 20px; cursor: pointer;">🗑️ مسح جميع بيانات المحادثات</button>
+        <input type="text" id="targetUrl" placeholder="رابط النموذج المختار..." readonly>
+        <button class="btn" onclick="bootSystem()">🚀 بدء التحميل الآمن</button>
+        <p style="font-size: 9px; color: #444; margin-top: 15px; line-height: 1.4;">* ملاحظة: النماذج التي تنتهي بـ 1.5B أو 3B هي الأكثر استقراراً للهواتف. تجنب النماذج الضخمة (7B+) إذا كان هاتفك بذاكرة أقل من 8GB.</p>
     </div>
 
     <div id="pane-chat" class="chat-view"><div id="chat-content"></div></div>
 
     <div id="chat-input-bar" class="footer" style="display:none;">
-        <input type="text" id="userMsg" placeholder="تحدث مع الذكاء الاصطناعي...">
-        <button class="btn" onclick="handleSend()" style="width: auto;">↑</button>
+        <input type="text" id="userMsg" placeholder="اكتب رسالتك..." style="margin:0;">
+        <button class="btn" onclick="handleSend()" style="width: auto; padding: 10px 20px;">↑</button>
     </div>
 
     <div id="loader">
-        <h1 id="pPerc" style="color:var(--p); font-size: 45px; font-weight: 900;">0%</h1>
-        <div class="prog-bg"><div id="pBar"></div></div>
-        <p id="lStatus" style="font-size: 11px; color: #64748b; text-align: center;">جاري بناء الروابط الذكية...</p>
+        <h1 id="pPerc" style="color:var(--p); font-size: 40px;">0%</h1>
+        <div class="p-bar-bg"><div id="pBar"></div></div>
+        <p id="lStatus" style="font-size: 10px; color: #64748b; text-align: center;">جاري تهيئة الاتصال بمستودعات MLC...</p>
     </div>
 </div>
 
@@ -95,58 +71,37 @@
     import * as webllm from "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/+esm";
 
     let engine;
-    const DB_KEY = "NEXUS_ULTIMATE_STORAGE";
+    const DB_KEY = "NEXUS_CHATS";
 
-    // 1. كاشف العتاد
-    window.onload = async () => {
-        const saved = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
-        saved.forEach(m => renderMsg(m.role, m.content));
-        if (navigator.gpu) {
-            const adp = await navigator.gpu.requestAdapter();
-            document.getElementById('gpu').innerText = adp.name.split(' ')[0];
-        }
-    };
-
-    // 2. محرك البحث العميق (حتى 50 نموذج)
-    window.deepSearch = async () => {
+    // 1. بحث Hugging Face الشامل (50 نتيجة)
+    window.searchModels = async () => {
         const q = document.getElementById('hfSearch').value.trim();
         const resDiv = document.getElementById('results');
         if (q.length < 2) { resDiv.style.display = 'none'; return; }
 
-        resDiv.style.display = 'block';
-        resDiv.innerHTML = '<div class="model-item">جاري الفحص الشامل لمستودعات HF...</div>';
-
         try {
-            // جلب حتى 50 نموذج متوافق مع MLC
             const r = await fetch(`https://huggingface.co/api/models?search=${q}&filter=mlc&sort=downloads&direction=-1&limit=50`);
             const models = await r.json();
-            
             resDiv.innerHTML = '';
-            if (models.length === 0) {
-                resDiv.innerHTML = '<div class="model-item">لم نجد نماذج MLC بهذا الاسم.</div>';
-                return;
-            }
-
+            resDiv.style.display = 'block';
+            
             models.forEach(m => {
-                const item = document.createElement('div');
-                item.className = 'model-item';
-                item.innerHTML = `
-                    <div class="model-info">${m.id.split('/').pop()}</div>
-                    <div class="model-meta">⬇️ ${(m.downloads/1000).toFixed(1)}k</div>
-                `;
-                item.onclick = () => {
+                const d = document.createElement('div');
+                d.className = 'model-item';
+                d.innerHTML = `<b>📦 ${m.id.split('/').pop()}</b> <span style="float:left; color:#444;">${Math.round(m.downloads/1000)}k</span>`;
+                d.onclick = () => {
                     document.getElementById('targetUrl').value = `https://huggingface.co/${m.id}`;
                     resDiv.style.display = 'none';
                 };
-                resDiv.appendChild(item);
+                resDiv.appendChild(d);
             });
-        } catch(e) { resDiv.innerHTML = '<div class="model-item" style="color:red">فشل الاتصال بالخادم</div>'; }
+        } catch(e) {}
     };
 
-    // 3. منطق التشغيل المحسن (إصلاح خطأ التحميل)
+    // 2. نظام التحميل الذكي (إصلاح Injection Error)
     window.bootSystem = async () => {
         const url = document.getElementById('targetUrl').value.trim();
-        if(!url) return alert("اختر نموذجاً من القائمة أولاً");
+        if(!url) return alert("يرجى اختيار نموذج أولاً");
 
         const modelId = url.split('/').filter(Boolean).pop();
         document.getElementById('loader').style.display = 'flex';
@@ -154,16 +109,15 @@
         try {
             engine = new webllm.MLCEngine();
             
-            // محاولة ذكية لتوقع رابط الـ WASM
-            const libUrl = `https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/${modelId}.wasm`;
+            // القاعدة الذهبية: مطابقة ملف WASM بناءً على نمط التسمية العالمي لـ MLC
+            const libUrl = `https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/${modelId}-q4f16_1-MLC.wasm`;
 
             engine.setInitProgressCallback(r => {
                 const p = Math.round(r.progress * 100);
                 document.getElementById('pBar').style.width = p + "%";
                 document.getElementById('pPerc').innerText = p + "%";
                 document.getElementById('lStatus').innerText = r.text;
-                
-                if(p >= 100) { 
+                if(p >= 100) {
                     setTimeout(() => {
                         document.getElementById('loader').style.display = 'none';
                         document.getElementById('pane-setup').style.display = 'none';
@@ -173,8 +127,72 @@
                 }
             });
 
+            // محاولة التحميل الأولى
             await engine.reload(modelId, {
                 model_list: [{ "model": url, "model_id": modelId, "model_lib": libUrl }],
+                appConfig: { useIndexedDB: true }
+            });
+
+        } catch(e) {
+            console.error(e);
+            // محاولة بديلة إذا فشلت التسمية السابقة
+            try {
+                const fallbackLib = `https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/${modelId}.wasm`;
+                await engine.reload(modelId, {
+                    model_list: [{ "model": url, "model_id": modelId, "model_lib": fallbackLib }],
+                    appConfig: { useIndexedDB: true }
+                });
+            } catch(e2) {
+                document.getElementById('loader').style.display = 'none';
+                alert("خطأ: هذا النموذج غير متوافق حالياً مع محرك المتصفح. يرجى اختيار نموذج آخر من عائلة Qwen2.5 أو Llama-3.2.");
+            }
+        }
+    };
+
+    // 3. الدردشة والحفظ
+    window.handleSend = async () => {
+        const input = document.getElementById('userMsg');
+        const text = input.value.trim();
+        if(!text || !engine) return;
+
+        appendMsg('user', text);
+        saveMsg('user', text);
+        input.value = "";
+        const aiId = 'ai_' + Date.now();
+        appendMsg('assistant', '...', aiId);
+
+        try {
+            let full = "", tokens = 0;
+            const t0 = performance.now();
+            const chunks = await engine.chat.completions.create({
+                messages: JSON.parse(localStorage.getItem(DB_KEY) || "[]").slice(-6),
+                stream: true
+            });
+
+            for await (const c of chunks) {
+                full += c.choices[0]?.delta?.content || "";
+                tokens++;
+                document.getElementById('tps').innerText = (tokens / ((performance.now()-t0)/1000)).toFixed(1);
+                document.getElementById(aiId).innerText = full;
+                document.getElementById('pane-chat').scrollTop = 99999;
+            }
+            saveMsg('assistant', full);
+        } catch(e) {}
+    };
+
+    function saveMsg(r, c) { const h = JSON.parse(localStorage.getItem(DB_KEY) || "[]"); h.push({role: r, content: c}); localStorage.setItem(DB_KEY, JSON.stringify(h)); }
+    function appendMsg(r, t, id = '') {
+        const d = document.createElement('div');
+        d.className = `msg ${r==='assistant'?'ai':'user'}`;
+        if(id) d.id = id;
+        d.innerText = t;
+        document.getElementById('chat-content').appendChild(d);
+        document.getElementById('pane-chat').scrollTop = 99999;
+    }
+</script>
+</body>
+</html>
+],
                 appConfig: { useIndexedDB: true }
             });
         } catch(e) {
@@ -362,4 +380,5 @@
 </script>
 </body>
 </html>
+
 
